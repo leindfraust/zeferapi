@@ -1,4 +1,10 @@
-import { Controller, Get, Headers } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Headers,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { PostService } from './post.service';
 import { Post } from '@prisma/client';
 
@@ -20,8 +26,8 @@ export class PostController {
         userId = validateUser;
         return this.postService.posts({ id: userId }, token);
       }
-      return null;
+      throw new HttpException('Incorrect API Key', HttpStatus.FORBIDDEN);
     }
-    return null;
+    throw new HttpException('Empty API Key', HttpStatus.BAD_REQUEST);
   }
 }

@@ -24,14 +24,14 @@ export class PostService {
     if (userPosts) {
       await this.prisma.apiKey.update({
         where: {
-          id: userPosts.id,
+          ownerId: userPosts.id,
           key: token,
         },
         data: {
           lastUsed: new Date(),
         },
       });
-      await this.prisma.apiKeyRequests.create({
+      await this.prisma.apiKeyRequest.create({
         data: {
           apiKey: {
             connect: {
@@ -43,7 +43,7 @@ export class PostService {
       });
       return userPosts.post;
     } else {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
   }
 
