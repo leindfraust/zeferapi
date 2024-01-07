@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex", "multiSchema"]
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  schemas           = ["users", "sessions", "posts", "tags", "apikey"]
+}
+
+model User {
+  id       String   @id @default(cuid())
+  username String?  @unique
+  name     String?
+  email    String?  @unique
+  image    String
+  apiKeys  ApiKey[]
+  post     Post[]
+
+  @@unique([id, name, image])
+  @@unique([id, name, username, image])
+  @@schema("users")
+}
+
+model Post {
+  id             String   @id @default(cuid())
+  titleId        String   @unique
+  userId         String
+  author         String
+  authorUsername String?
+  authorImage    String
+  content        Json
+  published      Boolean
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId, author, authorImage], references: [id, name, image])
+
+  @@schema("posts")
+}
+
+model ApiKey {
+  id           String           @id @default(cuid())
+  name         String
+  organization String?
+  key          String           @unique
+  lastUsed     DateTime?
+  usage        ApiKeyRequests[]
+  createdAt    DateTime         @default(now())
+  ownerId      String
+  user         User             @relation(fields: [ownerId], references: [id])
+
+  @@schema("apikey")
+}
+
+model ApiKeyRequests {
+  id          String   @id @default(cuid())
+  apiKeyId    String
+  requestSize Int
+  createdAt   DateTime @default(now())
+  apiKey      ApiKey   @relation(fields: [apiKeyId], references: [id])
+
+  @@schema("apikey")
+}
