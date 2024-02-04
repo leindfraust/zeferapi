@@ -46,29 +46,32 @@ export class PostService {
         id: true,
         post: {
           where: {
-            ...(q && {
-              title: {
-                search: keyword,
-              },
-              description: {
-                search: keyword,
-              },
-              author: {
-                search: keyword,
-              },
-            }),
+            ...(q &&
+              q !== undefined && {
+                title: {
+                  search: keyword,
+                },
+                description: {
+                  search: keyword,
+                },
+                author: {
+                  search: keyword,
+                },
+              }),
             published: true,
           },
-          ...(cursor && {
-            cursor: {
-              id: cursor,
-            },
-            skip: 1,
-          }),
-          ...(limit && {
-            take: Number(limit),
-          }),
-          ...(orderBy && orderBy === 'most-popular'
+          ...(cursor &&
+            cursor !== undefined && {
+              cursor: {
+                id: cursor,
+              },
+              skip: 1,
+            }),
+          ...(limit &&
+            limit !== undefined && {
+              take: Number(limit),
+            }),
+          ...(orderBy && orderBy !== undefined && orderBy === 'most-popular'
             ? {
                 orderBy: {
                   views: {
