@@ -36,6 +36,7 @@ model Post {
   author         String
   authorUsername String?
   authorImage    String
+  coverImage     String
   content        Json
   published      Boolean
   views          PostView[]
