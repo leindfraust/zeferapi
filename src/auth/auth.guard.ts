@@ -26,12 +26,18 @@ export class AuthGuard implements CanActivate {
   }
 
   async validateApiKey(token: string, request: any): Promise<boolean> {
-    const validateUser = await this.postService.validateApiKey({ key: token });
+    const validateUser = await this.postService.validateApiKey({
+      key: token,
+      isActive: true,
+    });
     if (validateUser) {
       request.sub = token;
       request.user = validateUser;
       return true;
     }
-    throw new HttpException('Incorrect API Key', HttpStatus.FORBIDDEN);
+    throw new HttpException(
+      'Unauthorized. Incorrect API key',
+      HttpStatus.UNAUTHORIZED,
+    );
   }
 }
