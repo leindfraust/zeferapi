@@ -20,15 +20,14 @@ export class PostController {
     @Request() req: any,
     @Query() query: any,
   ): Promise<Post[] | null> {
-    const { cursor, limit, q, orderBy } = query;
-    return this.postService.posts(
-      { id: req.user },
-      req.sub,
-      q,
+    const { cursor, limit, q, orderBy, seriesId } = query;
+    return this.postService.posts({ id: req.user }, req.sub, {
       cursor,
       limit,
+      q,
       orderBy,
-    );
+      seriesId,
+    });
   }
 
   @Get(':id')

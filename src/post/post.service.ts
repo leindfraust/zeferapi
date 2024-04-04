@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Post, Prisma } from '@prisma/client';
+import { PostOptionsDto } from 'src/dto/post/post-options.dto';
 
 @Injectable()
 export class PostService {
@@ -34,20 +35,17 @@ export class PostService {
   async posts(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
     token: string,
-    q?: string,
-    cursor?: string,
-    limit?: number,
-    orderBy?: 'most-popular' | 'latest',
+    options?: PostOptionsDto,
   ): Promise<Post[]> {
-    const keyword = q?.split(' ').join('&');
+    const keyword = options?.q?.split(' ').join('&');
     const userPosts = await this.prisma.user.findUnique({
       where: userWhereUniqueInput,
       select: {
         id: true,
         post: {
           where: {
-            ...(q &&
-              q !== undefined && {
+            ...(options?.q &&
+              options.q !== undefined && {
                 title: {
                   search: keyword,
                 },
@@ -58,20 +56,30 @@ export class PostService {
                   search: keyword,
                 },
               }),
+            ...(options?.seriesId &&
+              options?.seriesId !== undefined && {
+                series: {
+                  some: {
+                    id: options?.seriesId,
+                  },
+                },
+              }),
             published: true,
           },
-          ...(cursor &&
-            cursor !== undefined && {
+          ...(options?.cursor &&
+            options?.cursor !== undefined && {
               cursor: {
-                id: cursor,
+                id: options?.cursor,
               },
               skip: 1,
             }),
-          ...(limit &&
-            limit !== undefined && {
-              take: Number(limit),
+          ...(options?.limit &&
+            options?.limit !== undefined && {
+              take: Number(options?.limit),
             }),
-          ...(orderBy && orderBy !== undefined && orderBy === 'most-popular'
+          ...(options?.orderBy &&
+          options?.orderBy !== undefined &&
+          options?.orderBy === 'most-popular'
             ? {
                 orderBy: {
                   views: {
