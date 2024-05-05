@@ -25,7 +25,10 @@ export class AuthGuard implements CanActivate {
     return this.validateApiKey(token, request);
   }
 
-  async validateApiKey(token: string, request: any): Promise<boolean> {
+  async validateApiKey(
+    token: string,
+    request: Request & { sub?: string; user?: string },
+  ): Promise<boolean> {
     const validateUser = await this.postService.validateApiKey({
       key: token,
       isActive: true,
